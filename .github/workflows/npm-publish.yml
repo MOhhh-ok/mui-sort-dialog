@@ -36,6 +36,6 @@ jobs:
             version: 9
       - run: pnpm i --frozen-lockfile
       - run: pnpm config set //registry.npmjs.org/:_authToken ${NODE_AUTH_TOKEN}
-      - run: pnpm publish --no-git-checks
+      - run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
