@@ -9,19 +9,28 @@ import {
 } from '@dnd-kit/core';
 import {
     arrayMove,
-    horizontalListSortingStrategy,
     SortableContext,
-    sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy
+    sortableKeyboardCoordinates, useSortable,
+    horizontalListSortingStrategy, verticalListSortingStrategy, rectSortingStrategy, rectSwappingStrategy
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Box, Button, Dialog, DialogTitle, DialogContent } from "@mui/material";
 import React, { createContext, CSSProperties, ReactNode, useContext, useEffect, useState } from 'react';
 import { DialogProps } from '@toolpad/core';
 
+type Strategy = 'default' | 'horizontal' | 'vertical' | 'swap';
+
+const strategyMap = {
+    default: rectSortingStrategy,
+    horizontal: horizontalListSortingStrategy,
+    vertical: verticalListSortingStrategy,
+    swap: rectSwappingStrategy,
+}
+
 type InputProps<T> = {
     title?: string;
     items: T[];
-    strategy: 'horizontal' | 'vertical';
+    strategy?: Strategy;
     container: (props: { children: ReactNode }) => ReactNode;
     renderItem: (item: T, handlerProps: any) => ReactNode;
 }
@@ -71,7 +80,7 @@ export function MuiSortDialog<T>(props: MuiSortDialogProps<T>) {
 
 function Content() {
     const { props, sortableItems, setSortableItems, payload } = useContext(Context);
-    const { strategy, container } = payload;
+    const { strategy = 'default', container } = payload;
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -99,7 +108,7 @@ function Content() {
     >
         <SortableContext
             items={sortableItems.map(item => item.id)}
-            strategy={strategy === 'horizontal' ? horizontalListSortingStrategy : verticalListSortingStrategy}
+            strategy={strategyMap[strategy]}
         >
             {container({ children: sortableItems.map(item => <SortableItemComponent key={item.id} item={item} />) })}
             <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2 }}>
