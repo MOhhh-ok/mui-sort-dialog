@@ -71,7 +71,8 @@ export function MuiSortDialog<T>(props: MuiSortDialogProps<T>) {
             <DialogTitle>{title}</DialogTitle>
             <DialogContent>
                 <Context.Provider value={{ props, payload, sortableItems, setSortableItems }}>
-                    <Content />
+                    aaa
+                    {/* <Content /> */}
                 </Context.Provider>
             </DialogContent>
         </Dialog>

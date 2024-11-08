@@ -37,7 +37,6 @@ function AppInner() {
     const handleClick = async () => {
         const res = await dlgs.open(MuiSortDialog<ItemType>, {
             items: testItems,
-            strategy: 'horizontal',
             container: (props) => <div style={{ display: 'flex', gap: 3, overflowX: 'scroll' }}>{props.children}</div>,
             renderItem: (item, handlerProps) => <div {...handlerProps}>{item.name}:{item.age}</div>
         })

@@ -7,7 +7,9 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "jsx": "react-jsx",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "noEmit": true,
+        "allowImportingTsExtensions": true
     },
     "include": [
         "src/**/*"

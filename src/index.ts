@@ -1,1 +1,1 @@
-export * from './MuiSortDialog';
+export * from './MuiSortDialog.tsx';
