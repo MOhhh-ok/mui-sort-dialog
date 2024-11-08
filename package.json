@@ -12,6 +12,7 @@
     "types": "./dist/index.d.ts",
     "scripts": {
         "build": "tsc",
+        "test": "echo 'no test'",
         "prepublishOnly": "pnpm run build"
     },
     "dependencies": {},
