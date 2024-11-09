@@ -8,6 +8,18 @@ This is a dialog for sort items.
 npm i @masa-dev/mui-sort-dialog
 ```
 
+If you do not have Mui yet. run below.
+
+```
+npm i @mui/material @emotion/react @emotion/styled
+```
+
+And also need toolpad. That is a part of Mui.
+
+```
+npm i @toolpad/core
+```
+
 # Usage
 
 ```tsx
