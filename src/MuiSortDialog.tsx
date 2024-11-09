@@ -9,16 +9,18 @@ import {
 } from '@dnd-kit/core';
 import {
     arrayMove,
+    horizontalListSortingStrategy,
+    rectSortingStrategy, rectSwappingStrategy,
     SortableContext,
     sortableKeyboardCoordinates, useSortable,
-    horizontalListSortingStrategy, verticalListSortingStrategy, rectSortingStrategy, rectSwappingStrategy
+    verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Box, Button, Dialog, DialogTitle, DialogContent } from "@mui/material";
-import React, { createContext, CSSProperties, ReactNode, useContext, useEffect, useState } from 'react';
-import { DialogProps } from '@toolpad/core';
-
-type Strategy = 'default' | 'horizontal' | 'vertical' | 'swap';
+import { Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import { CSSProperties, useContext, useEffect, useState } from 'react';
+import { Context } from './Context.js';
+import { RenderContainer, RenderDialogActions, RenderItem } from './defaults.js';
+import { MuiSortDialogProps, SortableItem } from './types.js';
 
 const strategyMap = {
     default: rectSortingStrategy,
@@ -27,39 +29,9 @@ const strategyMap = {
     swap: rectSwappingStrategy,
 }
 
-type InputProps<T> = {
-    title?: string;
-    items: T[];
-    strategy?: Strategy;
-    container: (props: { children: ReactNode }) => ReactNode;
-    renderItem: (item: T, handlerProps: any) => ReactNode;
-}
-
-
-type OutputProps<T> = {
-    items: T[];
-}
-
-type SortableItem<T> = {
-    id: number;
-    item: T;
-}
-
-
-export type MuiSortDialogProps<T> = DialogProps<InputProps<T>, OutputProps<T> | null> & {}
-
-type ContextType<T> = {
-    props: MuiSortDialogProps<T>;
-    payload: InputProps<T>;
-    sortableItems: SortableItem<T>[];
-    setSortableItems: React.Dispatch<React.SetStateAction<SortableItem<T>[]>>;
-}
-
-const Context = createContext<ContextType<any>>(null!);
-
 export function MuiSortDialog<T>(props: MuiSortDialogProps<T>) {
     const { open, onClose, payload } = props;
-    const { title, container } = payload;
+    const { title, renderDialogActions = RenderDialogActions } = payload;
     const [sortableItems, setSortableItems] = useState<SortableItem<T>[]>([]);
 
     useEffect(() => {
@@ -68,20 +40,22 @@ export function MuiSortDialog<T>(props: MuiSortDialogProps<T>) {
 
     return (
         <Dialog open={open ?? false} onClose={() => onClose(null)}>
-            <DialogTitle>{title}</DialogTitle>
-            <DialogContent>
-                <Context.Provider value={{ props, payload, sortableItems, setSortableItems }}>
-                    aaa
-                    {/* <Content /> */}
-                </Context.Provider>
-            </DialogContent>
+            <Context.Provider value={{ props, payload, sortableItems, setSortableItems }}>
+                <DialogTitle>{title}</DialogTitle>
+                <DialogContent>
+                    <Content />
+                </DialogContent>
+                <DialogActions>
+                    <Actions />
+                </DialogActions>
+            </Context.Provider>
         </Dialog>
     );
 }
 
 function Content() {
     const { props, sortableItems, setSortableItems, payload } = useContext(Context);
-    const { strategy = 'default', container } = payload;
+    const { strategy = 'default', renderContainer = RenderContainer, renderDialogActions = RenderDialogActions } = payload;
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, {
@@ -111,18 +85,15 @@ function Content() {
             items={sortableItems.map(item => item.id)}
             strategy={strategyMap[strategy]}
         >
-            {container({ children: sortableItems.map(item => <SortableItemComponent key={item.id} item={item} />) })}
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 2 }}>
-                <Button variant="contained" onClick={() => props.onClose({ items: sortableItems.map(item => item.item) })}>OK</Button>
-            </Box>
+            {renderContainer({ items: sortableItems.map(item => <SortableItemComponent key={item.id} item={item} />) })}
         </SortableContext>
     </DndContext>
 }
 
-export function SortableItemComponent(props: { item: SortableItem<any> }) {
+function SortableItemComponent(props: { item: SortableItem<any> }) {
     const { item } = props;
     const { payload } = useContext(Context);
-    const { renderItem } = payload;
+    const { renderItem = RenderItem } = payload;
     const {
         attributes,
         listeners,
@@ -137,5 +108,16 @@ export function SortableItemComponent(props: { item: SortableItem<any> }) {
     };
 
     const elProps = { ref: setNodeRef, style, ...attributes, ...listeners };
-    return renderItem(item.item, elProps)
+    return renderItem({ item: item.item, handlerProps: elProps })
+}
+
+function Actions() {
+    const { payload, sortableItems, props } = useContext(Context);
+    const { onClose } = props;
+    const { renderDialogActions = RenderDialogActions } = payload;
+
+    return renderDialogActions({
+        onOk: () => onClose({ items: sortableItems?.map(item => item.item) }),
+        onCancel: () => onClose(null)
+    });
 }

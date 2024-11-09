@@ -1,1 +1,2 @@
-export * from './MuiSortDialog.tsx';
+export * from './MuiSortDialog.js';
+export * from './types.js';
