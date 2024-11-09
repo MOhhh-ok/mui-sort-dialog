@@ -2,6 +2,8 @@
 
 This is a dialog for sort items.
 
+Try demo at https://mohhh-ok.github.io/mui-sort-dialog-demo/dist/
+
 # Install
 
 ```
